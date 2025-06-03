@@ -201,11 +201,11 @@ contract UniswapV2Pair is IUniswapV2Pair, UniswapV2ERC20 {
         {
             // scope for reserve{0,1}Adjusted, avoids stack too deep errors
             address treasuryAddress = IUniswapV2Factory(factory).treasuryTo();
-            uint256 lpFee = treasuryAddress != address(0) ? 22 : 30; // 0.22% if treasury set, 0.3% if not
-            uint256 balance0Adjusted = balance0.mul(10000).sub(amount0In.mul(lpFee));
-            uint256 balance1Adjusted = balance1.mul(10000).sub(amount1In.mul(lpFee));
+            uint256 lpFee = treasuryAddress != address(0) ? 225 : 300; // 0.22% if treasury set, 0.3% if not
+            uint256 balance0Adjusted = balance0.mul(100000).sub(amount0In.mul(lpFee));
+            uint256 balance1Adjusted = balance1.mul(100000).sub(amount1In.mul(lpFee));
             require(
-                balance0Adjusted.mul(balance1Adjusted) >= uint256(_reserve0).mul(_reserve1).mul(100000000), // 10000^2
+                balance0Adjusted.mul(balance1Adjusted) >= uint256(_reserve0).mul(_reserve1).mul(10000000000), // 100000^2
                 "UniswapV2: K"
             );
         }
