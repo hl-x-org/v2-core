@@ -6,6 +6,8 @@ import './UniswapV2Pair.sol';
 contract UniswapV2Factory is IUniswapV2Factory {
     address public feeTo;
     address public feeToSetter;
+    address public treasuryTo;
+    bytes32 public constant INIT_CODE_PAIR_HASH = keccak256(abi.encodePacked(type(UniswapV2Pair).creationCode));
 
     mapping(address => mapping(address => address)) public getPair;
     address[] public allPairs;
@@ -45,5 +47,10 @@ contract UniswapV2Factory is IUniswapV2Factory {
     function setFeeToSetter(address _feeToSetter) external {
         require(msg.sender == feeToSetter, 'UniswapV2: FORBIDDEN');
         feeToSetter = _feeToSetter;
+    }
+
+    function setTreasuryTo(address _treasuryTo) external {
+        require(msg.sender == feeToSetter, "UniswapV2: FORBIDDEN");
+        treasuryTo = _treasuryTo;
     }
 }
