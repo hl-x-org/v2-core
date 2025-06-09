@@ -196,10 +196,8 @@ contract UniswapV2Pair is IUniswapV2Pair, UniswapV2ERC20 {
                     }
                 }
             }
-        }
-        {
             // scope for reserve{0,1}Adjusted, avoids stack too deep errors
-            uint256 feeNumerator = IUniswapV2Factory(factory).treasuryTo() != address(0) ? 9 : 12; // 0.225% if treasury set, 0.3% if not
+            uint256 feeNumerator = treasuryAddress != address(0) ? 9 : 12; // 0.225% if treasury set, 0.3% if not
             uint256 balance0Adjusted = balance0.mul(4000).sub(amount0In.mul(feeNumerator));
             uint256 balance1Adjusted = balance1.mul(4000).sub(amount1In.mul(feeNumerator));
             require(
