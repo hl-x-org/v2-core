@@ -180,32 +180,28 @@ contract UniswapV2Pair is IUniswapV2Pair, UniswapV2ERC20 {
         {
             address treasuryAddress = IUniswapV2Factory(factory).treasuryTo();
             if (treasuryAddress != address(0)) {
-                // Treasury gets 25% of 0.3% = 0.075% of input amount
+                // Treasury gets 25% of 0.3% = 0.075% (3/4000) of input amount
                 if (amount0In > 0) {
-                    uint256 treasuryFee = amount0In.mul(3).mul(25) / (1000 * 100);
+                    uint256 treasuryFee = amount0In.mul(3)/4000;
                     if (treasuryFee > 0) {
                         _safeTransfer(token0, treasuryAddress, treasuryFee);
                         balance0 = balance0.sub(treasuryFee);
                     }
                 }
                 if (amount1In > 0) {
-                    uint256 treasuryFee = amount1In.mul(3).mul(25) / (1000 * 100);
+                    uint256 treasuryFee = amount1In.mul(3)/4000;
                     if (treasuryFee > 0) {
                         _safeTransfer(token1, treasuryAddress, treasuryFee);
                         balance1 = balance1.sub(treasuryFee);
                     }
                 }
             }
-        }
-
-        {
             // scope for reserve{0,1}Adjusted, avoids stack too deep errors
-            address treasuryAddress = IUniswapV2Factory(factory).treasuryTo();
-            uint256 lpFee = treasuryAddress != address(0) ? 225 : 300; // 0.22% if treasury set, 0.3% if not
-            uint256 balance0Adjusted = balance0.mul(100000).sub(amount0In.mul(lpFee));
-            uint256 balance1Adjusted = balance1.mul(100000).sub(amount1In.mul(lpFee));
+            uint256 feeNumerator = treasuryAddress != address(0) ? 9 : 12; // 0.225% if treasury set, 0.3% if not
+            uint256 balance0Adjusted = balance0.mul(4000).sub(amount0In.mul(feeNumerator));
+            uint256 balance1Adjusted = balance1.mul(4000).sub(amount1In.mul(feeNumerator));
             require(
-                balance0Adjusted.mul(balance1Adjusted) >= uint256(_reserve0).mul(_reserve1).mul(10000000000), // 100000^2
+                balance0Adjusted.mul(balance1Adjusted) >= uint256(_reserve0).mul(_reserve1).mul(16000000), // 4000^2
                 "UniswapV2: K"
             );
         }
