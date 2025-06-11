@@ -96,7 +96,7 @@ contract UniswapV2Pair is IUniswapV2Pair, UniswapV2ERC20 {
                 uint rootKLast = Math.sqrt(_kLast);
                 if (rootK > rootKLast) {
                     uint numerator = totalSupply.mul(rootK.sub(rootKLast));
-                    uint denominator = rootK.mul(5).add(rootKLast);
+                    uint denominator = rootK.mul(3).add(rootKLast);
                     uint liquidity = numerator / denominator;
                     if (liquidity > 0) _mint(feeTo, liquidity);
                 }
@@ -176,34 +176,10 @@ contract UniswapV2Pair is IUniswapV2Pair, UniswapV2ERC20 {
         uint amount0In = balance0 > _reserve0 - amount0Out ? balance0 - (_reserve0 - amount0Out) : 0;
         uint amount1In = balance1 > _reserve1 - amount1Out ? balance1 - (_reserve1 - amount1Out) : 0;
         require(amount0In > 0 || amount1In > 0, 'UniswapV2: INSUFFICIENT_INPUT_AMOUNT');
-        // Calculate and send treasury fees (25% of the 0.3% trading fee)
-        {
-            address treasuryAddress = IUniswapV2Factory(factory).treasuryTo();
-            if (treasuryAddress != address(0)) {
-                // Treasury gets 25% of 0.3% = 0.075% (3/4000) of input amount
-                if (amount0In > 0) {
-                    uint256 treasuryFee = amount0In.mul(3)/4000;
-                    if (treasuryFee > 0) {
-                        _safeTransfer(token0, treasuryAddress, treasuryFee);
-                        balance0 = balance0.sub(treasuryFee);
-                    }
-                }
-                if (amount1In > 0) {
-                    uint256 treasuryFee = amount1In.mul(3)/4000;
-                    if (treasuryFee > 0) {
-                        _safeTransfer(token1, treasuryAddress, treasuryFee);
-                        balance1 = balance1.sub(treasuryFee);
-                    }
-                }
-            }
-            // scope for reserve{0,1}Adjusted, avoids stack too deep errors
-            uint256 feeNumerator = treasuryAddress != address(0) ? 9 : 12; // 0.225% if treasury set, 0.3% if not
-            uint256 balance0Adjusted = balance0.mul(4000).sub(amount0In.mul(feeNumerator));
-            uint256 balance1Adjusted = balance1.mul(4000).sub(amount1In.mul(feeNumerator));
-            require(
-                balance0Adjusted.mul(balance1Adjusted) >= uint256(_reserve0).mul(_reserve1).mul(16000000), // 4000^2
-                "UniswapV2: K"
-            );
+        { // scope for reserve{0,1}Adjusted, avoids stack too deep errors
+        uint balance0Adjusted = balance0.mul(1000).sub(amount0In.mul(3));
+        uint balance1Adjusted = balance1.mul(1000).sub(amount1In.mul(3));
+        require(balance0Adjusted.mul(balance1Adjusted) >= uint(_reserve0).mul(_reserve1).mul(1000**2), 'UniswapV2: K');
         }
 
         _update(balance0, balance1, _reserve0, _reserve1);
